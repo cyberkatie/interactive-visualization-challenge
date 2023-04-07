@@ -19,8 +19,7 @@ dataProm.then(function(data) {
 function metaDataPanel(namesID){
     let testingID = parseInt(namesID);
     dataProm.then((data) => {
-        console.log(testingID);
-        console.log(typeof(testingID));
+
         let metaData = data.metadata;
         console.log(metaData)
         let selected = metaData.filter(namesID => namesID.id === testingID);
