@@ -18,3 +18,5 @@ Used the D3 library to read in samples.json from the URL https://2u-data-curricu
 * Displayed the sample metadata, i.e., an individual's demographic information.
 * Displayed each key-value pair from the metadata JSON object on the page.
 * Updated all the plots when a new sample is selected.
+
+Website deployed at http://cyberkatie.github.io
