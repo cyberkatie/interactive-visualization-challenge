@@ -3,17 +3,148 @@ var samples_url =  "https://2u-data-curriculum-team.s3.amazonaws.com/dataviz-cla
 var dataProm = d3.json(samples_url);
 
 //initializes
-dataProm.then(function(data) {
+function init(){
+dataProm.then((data) => {
 
+    var names = data.names;
+    names.forEach((sample) => {
+        d3.select("#selDataset")
+          .append("option")
+          .text(sample)
+          .property("value", sample);
+      });
+
+      /*
     let names = Object.values(data.names);
     d3.select("#selDataset")
         .selectAll('options')
         .data(names)
         .enter()
         .append("option")
-        .text(function(d) {console.log(d); return d;
+        .text(function(d) { return d;
         });
+*/
+
+    //initial plots
+    let FirstSample = names[0];
+    charts(FirstSample);
+    show(FirstSample);
+
 });
+};
+
+//initializes
+init();
+
+function charts(sample){
+    dataProm.then((data) => {
+    //variable to hold the first sample in the array
+    let FirstSample = data.samples.filter(sampleID => sampleID.id == sample)[0];
+
+    //variables for otu_ids, otu_labels, and sample_values
+    let otuID = FirstSample.otu_ids;
+    let otuLabel = FirstSample.otu_labels;
+    let sampleValues = FirstSample.sample_values;
+
+    //creating y data, labels, and values
+    var y = (
+        otuID
+        .slice(0, 10)
+        .map(val => `OTU ${val}`)
+        .reverse()
+        );
+
+    labels = (
+        otuLabel
+        .slice(0, 10)
+        .map(val => val)
+        .reverse());
+
+    values = (
+      sampleValues
+      .slice(0, 10)
+      .map(val => val)
+      .reverse());
+
+      //bar chart
+      var barChart = [{
+        x: values, 
+        y: y,
+        text: labels, 
+        type: 'bar',
+        orientation: 'h'
+      }];
+
+      //layout
+      var barLayout = {
+        hovermode: 'closest',
+        title: '<b>Top 10 Bacteria Cultures Found</b>'
+      };
+
+      // Use Plotly to plot the data with the layout. 
+    Plotly.newPlot('bar', barChart, barLayout);
+
+    //bubble chart
+    var bubbleChart = [{
+        x: otuID, 
+        y: sampleValues, 
+        text: otuLabel,
+        mode: 'markers',
+        marker: { 
+          size: sampleValues,
+          color: otuID,
+          colorscale: 'Picnic' }
+      }];
+      // Create layout for bubble chart.
+      var bubbleLayout = {
+        hovermode: 'closest',
+        title: '<b>Bacteria Cultures per Sample</b>',
+        xaxis: { title: 'OTU ID' }
+      };
+      // Use Plotly to plot the data with the layout.
+      Plotly.newPlot('bubble', bubbleChart, bubbleLayout);
+    })
+}
+
+function show(sample) {
+    dataProm.then((data) => {
+      var metadata = data.metadata;
+      var results = metadata.filter(sampleID => sampleID.id == sample);
+      var result = results[0];
+      var panel = d3.select("#sample-metadata");
+  
+      panel.html("");
+    
+      Object.entries(result).forEach(([id, val]) => {
+        panel.append("h6").text(id.toUpperCase() + ': ' + val);
+      });
+    });
+  }
+
+  function updates(sampleID) {
+    show(sampleID);
+    charts(sampleID);
+  }
+  
+ /*
+//charts initialization
+function init(namesID) {
+    metaDataPanel(namesID)
+    dataProm.then(function(data) {
+
+        let testing = Object.values(data.samples[0]);
+        console.log(testing);
+
+        let sample_val = testing[2].slice(0,10).reverse();
+
+        let otu_id = testing[1].slice(0,10).map(otu_id => "OTU" + otu_id).reverse();
+
+        let otu_labels = testing[3].slice(0,10).reverse();
+
+        let combinedData = testing.map((testing, index) => {return {testing : testing, sample_val : sample_val[index]}})
+
+        let sortedData = combinedData.sort()
+
 
 //metadata panel inclusion
 function metaDataPanel(namesID){
@@ -28,37 +159,24 @@ function metaDataPanel(namesID){
         console.log(selection)
         let sampleMDPanel = d3.select("#sample-metadata");
 
+        panel.html(""); 
+
         Object.entries(selection).forEach(([key, value]) => {
             sampleMDPanel.append("h6").text(`${key} : ${value}`);
+
         });
 
     });
 }
 
 // function to update data
-function updateData(namesID) {
-    console.log(namesID);
-    init(namesID);
+//function updateData(namesID) {
+function updateData(testingID) {
+    console.log(testingID);
+    init(testingID);
 }
 
-//charts initialization
-function init(namesID) {
-    metaDataPanel(namesID)
-    dataProm.then(function(data) {
-
-        let testing = Object.values(data.samples[0]);
-
-        let sample_val = testing[2].slice(0,10).reverse();
-
-        let otu_id = testing[1].slice(0,10).map(otu_id => "OTU" + otu_id).reverse();
-
-        let otu_labels = testing[3].slice(0,10).reverse();
-
-        let combinedData = testing.map((testing, index) => {return {testing : testing, sample_val : sample_val[index]}})
-
-        let sortedData = combinedData.sort()
-
-
+/*
         let names = ['Adam', 'Reed', 'Katie', 'Phil']
         let ages = [27, 67, 25, 40]
         console.log(names)
@@ -73,7 +191,6 @@ function init(namesID) {
         people = names.map((name, index)=>{ return {name:name, age: ages[index] } })
         //people.sort(...)
         console.log(people)
-
 
         // people_list = [{name:'Adam', age:27}, {name:'Reed', age:67}, {name:'katie' age:25}, {name:'Phil', age:40}]
 
@@ -100,3 +217,9 @@ function init(namesID) {
         Plotly.newPlot('bubble', bubbleChart);
     });
 };
+
+function newchoice(namesID) {
+    makedata(namesID);
+    makechart(namesID);
+  }
+  */
